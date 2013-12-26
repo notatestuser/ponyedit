@@ -1,12 +1,42 @@
 (function(window, document, ee) {
     'use strict';
 
+    // ----------------------------------------------------------
+    // Create a function bound to a given object (assigning `this`, and arguments,
+    // optionally). Delegates to **ECMAScript 5**'s native `Function.bind` if
+    // available.
+    // ----------------------------------------------------------
+
+    var Ctor = function(){};
+
+    var bindDomFn = function(func, context) {
+        var args, bound;
+        if (nativeBind && func.bind === nativeBind) return nativeBind.apply(func, slice.call(arguments, 1));
+        if (!_.isFunction(func))
+            throw new TypeError();
+        args = slice.call(arguments, 2);
+        bound = function() {
+            if (!(this instanceof bound)) return func.apply(context, args.concat(slice.call(arguments)));
+            Ctor.prototype = func.prototype;
+            var self = new Ctor();
+            Ctor.prototype = null;
+            var result = func.apply(self, args.concat(slice.call(arguments)));
+            if (Object(result) === result) return result;
+            return self;
+        };
+        return bound;
+    };
+
+    // ----------------------------------------------------------
+
     /* jshint validthis:true */
     var ponies = [];
     var wasCollapsed;
-    var query = document.queryCommandValue.bind(document);
-    var exec = document.execCommand.bind(document);
     var addEventListener = 'addEventListener';
+
+    // we're using the bit of bind code above in order to fix IE<8's shortcomings
+    var query = bindDomFn(document.queryCommandValue, document);
+    var exec  = bindDomFn(document.execCommand, document);
 
     function find (element) {
         var i = 0;
