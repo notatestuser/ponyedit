@@ -26,7 +26,7 @@
     /* jshint validthis:true */
     var ponies = [];
     var wasCollapsed;
-    var addEventListener = 'addEventListener';
+    var addEventListener = window.addEventListener ? 'addEventListener' : 'attachEvent';
 
     // we're using the bit of bind code above in order to fix IE<8's shortcomings
     var query = bindDomFn(document.queryCommandValue, document);
@@ -220,8 +220,13 @@
     }
 
     Editor.prototype.focus = function () {
-        var range = document.createRange();
-        var selection = window.getSelection();
+        var range, selection;
+        if ( ! document.createRange || ! window.getSelection) {
+            // probably old IE
+            return;
+        }
+        range = document.createRange();
+        selection = window.getSelection();
         range.setStart(this.content, 0);
         selection.removeAllRanges();
         selection.addRange(range);
