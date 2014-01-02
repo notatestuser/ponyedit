@@ -26,7 +26,7 @@
     /* jshint validthis:true */
     var ponies = [];
     var wasCollapsed;
-    var addEventListener = window.addEventListener ? 'addEventListener' : 'attachEvent';
+    var addEventListener = window.attachEvent ? 'attachEvent' : 'addEventListener';
 
     // we're using the bit of bind code above in order to fix IE<8's shortcomings
     var query = bindDomFn(document.queryCommandValue, document);
